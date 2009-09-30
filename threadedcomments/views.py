@@ -81,7 +81,9 @@ def free_comment(request, content_type=None, object_id=None, edit_id=None, paren
         instance = None
     _adjust_max_comment_length(form_class)
     form = form_class(request.POST, instance=instance)
+    print "VALIDATING...", request.POST
     if form.is_valid():
+        print "FORM IS VALID", ajax
         new_comment = form.save(commit=False)
         if not edit_id:
             new_comment.ip_address = request.META.get('REMOTE_ADDR', None)
@@ -105,10 +107,18 @@ def free_comment(request, content_type=None, object_id=None, edit_id=None, paren
             return JSONResponse([new_comment,])
         elif ajax == 'xml':
             return XMLResponse([new_comment,])
+        elif ajax == 'html':
+          context = { 'comment' : new_comment }
+          return render_to_response( 'comments/_comment.html', 
+              context_instance=RequestContext( request, context, context_processors )
+          )
         else:
             return HttpResponseRedirect(_get_next(request))
     elif ajax=="json":
         return JSONResponse({'errors' : form.errors}, is_iterable=False)
+    elif ajax == 'html':
+      print "HTML FAIL", form.errors
+      HttpResponse("We've failed to post your comment.")
     elif ajax=="xml":
         template_str = """
 <errorlist>

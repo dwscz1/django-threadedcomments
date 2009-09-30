@@ -51,6 +51,8 @@ def get_comment_url_ajax(content_object, parent=None, ajax_type='json'):
     else:
         return reverse('tc_comment_ajax', kwargs=kwargs)
 
+# NOTE: These are so redundant.  These could be one-liners except for the name of the tag
+# generating the exception.
 def get_comment_url_json(content_object, parent=None):
     """
     Wraps ``get_comment_url_ajax`` with ``ajax_type='json'``
@@ -69,6 +71,16 @@ def get_comment_url_xml(content_object, parent=None):
         return get_comment_url_ajax(content_object, parent, ajax_type="xml")
     except template.TemplateSyntaxError:
         raise template.TemplateSyntaxError, "get_comment_url_xml requires its parent object to be of type ThreadedComment"
+    return ''
+
+def get_comment_url_html(content_object, parent=None):
+    """
+    Wraps ``get_comment_url_ajax`` with ``ajax_type='html'``
+    """
+    try:
+        return get_comment_url_ajax(content_object, parent, ajax_type="html")
+    except template.TemplateSyntaxError:
+        raise template.TemplateSyntaxError, "get_comment_url_html requires its parent object to be of type ThreadedComment"
     return ''
 
 def get_free_comment_url(content_object, parent=None):
@@ -416,6 +428,7 @@ register = template.Library()
 register.simple_tag(get_comment_url)
 register.simple_tag(get_comment_url_json)
 register.simple_tag(get_comment_url_xml)
+register.simple_tag(get_comment_url_html)
 register.simple_tag(get_free_comment_url)
 register.simple_tag(get_free_comment_url_json)
 register.simple_tag(get_free_comment_url_xml)
